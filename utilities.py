@@ -1,4 +1,4 @@
-from math import atan2, asin, sqrt
+from math import acos
 
 M_PI=3.1415926535
 
@@ -85,7 +85,8 @@ def euler_from_quaternion(quat):
     Convert quaternion (w in last place) to euler roll, pitch, yaw.
     quat = [x, y, z, w]
     """
-    ... # just unpack yaw
+    yaw = 2*acos(quat.w)
+    # just unpack yaw
     return yaw
 
 
