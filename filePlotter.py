@@ -17,10 +17,23 @@ def plot_errors(filename):
     for i in range(0, len(headers) - 1):
         plt.plot(time_list, [lin[i] for lin in values], label= headers[i]+ " linear")
     
-    #plt.plot([lin[0] for lin in values], [lin[1] for lin in values])
+    plt.plot([lin[0] for lin in values], [lin[1] for lin in values])
     plt.legend()
     plt.grid()
     plt.show()
+
+def plot_cartesian(filename):
+    headers, values=FileReader(filename).read_file() 
+    time_list=[]
+    first_stamp=values[0][-1]
+
+    for val in values:
+        time_list.append(val[-1] - first_stamp)
+
+    for val in values[0]:
+        val = val.replace("array('f', [", '') 
+
+    print(values[0])
     
 import argparse
 
@@ -35,4 +48,4 @@ if __name__=="__main__":
 
     filenames=args.files
     for filename in filenames:
-        plot_errors(filename)
+        plot_cartesian(filename)

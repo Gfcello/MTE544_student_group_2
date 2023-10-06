@@ -21,7 +21,7 @@ from rclpy.time import Time
 from rclpy.qos import ReliabilityPolicy
 
 CIRCLE=0; SPIRAL=1; ACC_LINE=2
-motion_types=['circle', 'spiral', 'line']
+motion_types=['circle', 'spiral', 'line', 'none']
 
 class motion_executioner(Node):
     
@@ -38,9 +38,9 @@ class motion_executioner(Node):
         self.odom_initialized=False
         self.laser_initialized=False
 
-        self.spiral_x_vel = 0.5
-        self.spiral_vel_increment = 0.05
-        
+        self.spiral_turn = 1.
+        self.spiral_inc = 0.005
+
         # TODO Part 3: Create a publisher to send velocity commands by setting the proper parameters in (...)
         self.vel_publisher=self.create_publisher(Twist, '/cmd_vel', 10)
 
@@ -48,23 +48,28 @@ class motion_executioner(Node):
         self.imu_logger=Logger('imu_content_'+str(motion_types[motion_type])+'.csv', headers=["acc_x", "acc_y", "angular_z", "stamp"])
         self.odom_logger=Logger('odom_content_'+str(motion_types[motion_type])+'.csv', headers=["x","y","th", "stamp"])
         self.laser_logger=Logger('laser_content_'+str(motion_types[motion_type])+'.csv', headers=["ranges", "stamp"])
-        
+        print ("Made all the loggers")
         # TODO Part 3: Create the QoS profile by setting the proper parameters in (...)
         qos=QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT, depth=10)
 
         # TODO Part 5: Create below the subscription to the topics corresponding to the respective sensors
         # IMU subscription
         
-        self.imu_subscriber = self.create_subscriber(Imu, '/imu', self.imu_callback, qos)
-        
+        self.imu_subscriber = self.create_subscription(Imu, '/imu', self.imu_callback, qos)
+        print ("Made IMU subscriber")
+        self.imu_initialized = True
         # ENCODER subscription
 
-        self.odom_subscriber = self.create_subscriber(Odometry, '/odom', self.odom_callback, qos)
-        
+        self.odom_subscriber = self.create_subscription(Odometry, '/odom', self.odom_callback, qos)
+        print ("Made odom subscriber")
+        self.odom_initialized = True
+
         # LaserScan subscription 
         
-        self.laser_subscriber = self.create_subscriber(LaserScan, '/scan', self.laser_callback, qos)
-        
+        self.laser_subscriber = self.create_subscription(LaserScan, '/scan', self.laser_callback, qos)
+        print ("Made laser subscriber")
+        self.laser_initialized = True
+
         self.create_timer(0.1, self.timer_callback)
 
 
@@ -73,17 +78,17 @@ class motion_executioner(Node):
 
     def imu_callback(self, imu_msg: Imu):
         # log imu msgs
-        log_msg = [imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y, imu_msg.angular_velocity.z, imu_msg.header.stamp]
+        log_msg = [imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y, imu_msg.angular_velocity.z, imu_msg.header.stamp.nanosec]
         self.imu_logger.log_values(log_msg)
         
     def odom_callback(self, odom_msg: Odometry):
         yaw = euler_from_quaternion(odom_msg.pose.pose.orientation)
-        log_msg = [odom_msg.pose.pose.position.x, odom_msg.pose.pose.position.y, yaw, odom_msg.header.stamp]
+        log_msg = [odom_msg.pose.pose.position.x, odom_msg.pose.pose.position.y, yaw, odom_msg.header.stamp.nanosec]
         self.odom_logger.log_values(log_msg)
         # log odom msgs
                 
     def laser_callback(self, laser_msg: LaserScan):
-        log_msg = [laser_msg.ranges, laser_msg.header.stamp]
+        log_msg = [laser_msg.ranges, laser_msg.header.stamp.nanosec]
         self.laser_logger.log_values(log_msg)
         # log laser msgs with position msg at that time
                 
@@ -93,17 +98,21 @@ class motion_executioner(Node):
             self.successful_init=True
             
         if not self.successful_init:
+            print ("Init failed")
             return
         
         cmd_vel_msg=Twist()
         
         if self.type==CIRCLE:
+            #print("running a circle")
             cmd_vel_msg=self.make_circular_twist()
         
         elif self.type==SPIRAL:
+            #print("running a spiral")
             cmd_vel_msg=self.make_spiral_twist()
                         
         elif self.type==ACC_LINE:
+            #print("running a line")
             cmd_vel_msg=self.make_acc_line_twist()
             
         else:
@@ -119,34 +128,35 @@ class motion_executioner(Node):
         
         msg=Twist()
         # fill up the twist msg for circular motion
-        msg.linear.x = 1
-        msg.linear.y = 0
-        msg.linear.z = 0
-        msg.angular.x = 0
-        msg.angular.y = 0
-        msg.angular.z = 1
+        msg.linear.x = 1.
+        msg.linear.y = 0.
+        msg.linear.z = 0.
+        msg.angular.x = 0.
+        msg.angular.y = 0.
+        msg.angular.z = 3.
         return msg
 
     def make_spiral_twist(self):
         msg=Twist()
-        msg.linear.x = self.spiral_x_vel
-        msg.linear.y = 0
-        msg.linear.z = 0
-        msg.angular.x = 0
-        msg.angular.y = 0
-        msg.angular.z = 1
-        self.spiral_x_vel += self.spiral_vel_increment # slowly speed up to spiral outwards
+        msg.linear.x = 0.5
+        msg.linear.y = 0.
+        msg.linear.z = 0.
+        msg.angular.x = 0.
+        msg.angular.y = 0.
+        msg.angular.z = self.spiral_turn
+
+        self.spiral_turn += self.spiral_inc
         # fill up the twist msg for spiral motion
         return msg
     
     def make_acc_line_twist(self):
         msg=Twist()
-        msg.linear.x = 1
-        msg.linear.y = 0
-        msg.linear.z = 0
-        msg.angular.x = 0
-        msg.angular.y = 0
-        msg.angular.z = 0
+        msg.linear.x = 0.5
+        msg.linear.y = 0.
+        msg.linear.z = 0.
+        msg.angular.x = 0.
+        msg.angular.y = 0.
+        msg.angular.z = 0.
         # fill up the twist msg for line motion
         return msg
 
@@ -176,7 +186,7 @@ if __name__=="__main__":
         ME=motion_executioner(motion_type=SPIRAL)
 
     else:
-        print(f"we don't have {arg.motion.lower()} motion type")
+        print(f"we don't have {args.motion.lower()} motion type")
 
 
     
