@@ -2,14 +2,15 @@
 # Note that you need to modify/adapt it to your own files
 # Feel free to make any modifications/additions here
 
+from math import cos, pi, sin
 import matplotlib.pyplot as plt
 from utilities import FileReader
 
 def plot_errors(filename):
-    headers, values=FileReader(filename).read_file() 
-
     # Odometry and imu plots
-    if "odom" or "imu" in filename:
+    if "odom" in filename or "imu" in filename:
+        headers, values=FileReader(filename).read_file() 
+
         values = list(map(list, zip(*values)))
 
         t_start = values[-1][0] # Start time, used to have time start at zero
@@ -54,7 +55,56 @@ def plot_errors(filename):
 
     # TODO: whatever needs to be done for LIDAR
     elif "laser" in filename:
-        pass
+        headers, lines=FileReader(filename).read_lidar_file() 
+
+        # Find the first line in the csv that has the fewest "inf" entries
+        full_line_found = False
+        row_index = 0
+        while not full_line_found:
+            row_index += 1 # Skip first line as it is the headings
+            # print("Row: ", row_index, " Count: ", lines[row_index].count("inf"))
+
+            # Since there are many inf readings in each row, get row with as few bad readings as possible
+            if lines[row_index].count("inf") < 320:
+                full_line_found = True
+        
+        # Looking at outputs want to plot a few rows of readings:
+        x_points = [] # at 0 degrees
+        y_points = []
+        for i in range(5):
+            laser_vals = str(lines[row_index]).replace("array('f', [", "").replace("])", "")
+            # Note still have to ignore the last value as it is the timestamp
+            laser_vals = laser_vals.split(',')
+            laser_vals = laser_vals[0:len(laser_vals)-2] # This chops off the timestamp
+
+            # Now should have a single good list of distance readings.
+            reading_angle = 0
+            reading_angle_increment = 2.0 * pi / len(laser_vals) # As each row is 360deg of readings
+            # Make lists to store readging points in reference to the robot
+            for reading in laser_vals:
+                if reading != "inf":
+                    x_points.append(float(reading) * cos(reading_angle))
+                    y_points.append(float(reading) * sin(reading_angle))
+
+                reading_angle += reading_angle_increment
+            
+            row_index += 1
+        
+        print(len(x_points))
+
+        # plot x vs y laser scan
+        plt.plot(y_points, x_points)
+        plt.grid()
+        if "spiral" in filename:
+            plt.title("x vs y Laser Scan Spiral")
+        elif "circle" in filename:
+            plt.title("x vs y Laser Scan Circle")
+        elif "line" in filename:
+            plt.title("x vs y Laser Scan Line")
+        plt.xlabel("x")
+        plt.ylabel("y")
+        plt.show()
+        
 
 import argparse
 

@@ -79,6 +79,35 @@ class FileReader:
         
         return headers, table
 
+    def read_lidar_file(self):
+        
+        read_headers=False
+
+        table=[]
+        headers=[]
+        with open(self.filename, 'r') as file:
+            # Skip the header line
+
+            if not read_headers:
+                for line in file:
+                    values=line.strip().split(',')
+
+                    for val in values:
+                        if val=='':
+                            break
+                        headers.append(val.strip())
+
+                    read_headers=True
+                    break
+            
+            next(file)
+            
+            # Read each line and extract values
+            for line in file:
+                table.append(line)
+        
+        return headers, table
+
 
 # TODO Part 5: Implement the conversion from Quaternion to Euler Angles
 def euler_from_quaternion(quat):
