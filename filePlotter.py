@@ -6,35 +6,53 @@ import matplotlib.pyplot as plt
 from utilities import FileReader
 
 def plot_errors(filename):
-    
     headers, values=FileReader(filename).read_file() 
-    time_list=[]
-    first_stamp=values[0][-1]
-    
-    for val in values:
-        time_list.append(val[-1] - first_stamp)
 
-    for i in range(0, len(headers) - 1):
-        plt.plot(time_list, [lin[i] for lin in values], label= headers[i]+ " linear")
-    
-    plt.plot([lin[0] for lin in values], [lin[1] for lin in values])
-    plt.legend()
-    plt.grid()
-    plt.show()
+    # Odometry and imu plots
+    if "odom" or "imu" in filename:
+        values = list(map(list, zip(*values)))
 
-def plot_cartesian(filename):
-    headers, values=FileReader(filename).read_file() 
-    time_list=[]
-    first_stamp=values[0][-1]
+        t_start = values[-1][0]
+        t_prev = values[-1][0]
+        adj = 0
+        WRAP_TIME = 1e9
+        num_wrapped = 0
 
-    for val in values:
-        time_list.append(val[-1] - first_stamp)
+        for i, t in enumerate(values[-1]):
+            t += adj
 
-    for val in values[0]:
-        val = val.replace("array('f', [", '') 
+            # Timer has looped around
+            if t < t_prev:
+                num_wrapped += 1
+                adj = num_wrapped * WRAP_TIME
+                t += WRAP_TIME
 
-    print(values[0])
-    
+            values[-1][i] = (t - t_start) / WRAP_TIME
+            t_prev = t
+
+        plt.plot(values[-1], values[0], label=headers[0])
+        plt.plot(values[-1], values[1], label=headers[1])
+        plt.plot(values[-1], values[2], label=headers[2])
+        plt.grid()
+        plt.legend()
+        plt.title("odom data" if "odom" in filename else "imu data")
+        plt.xlabel("time (sec)")
+        plt.ylabel("pose" if "odom" in filename else "accelerations")
+        plt.show()
+        
+        # plot x vs y trajectory for odom data
+        if "odom" in filename:
+            plt.plot(values[0], values[1])
+            plt.grid()
+            plt.title("x vs y trajectory")
+            plt.xlabel("x")
+            plt.ylabel("y")
+            plt.show()
+
+    # TODO: whatever needs to be done for LIDAR
+    elif "laser" in filename:
+        pass
+
 import argparse
 
 if __name__=="__main__":
@@ -48,4 +66,4 @@ if __name__=="__main__":
 
     filenames=args.files
     for filename in filenames:
-        plot_cartesian(filename)
+        plot_errors(filename)
