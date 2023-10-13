@@ -12,12 +12,13 @@ def plot_errors(filename):
     if "odom" or "imu" in filename:
         values = list(map(list, zip(*values)))
 
-        t_start = values[-1][0]
-        t_prev = values[-1][0]
-        adj = 0
-        WRAP_TIME = 1e9
-        num_wrapped = 0
+        t_start = values[-1][0] # Start time, used to have time start at zero
+        t_prev = values[-1][0] # Previous time value, used for rollover checks
+        adj = 0 # time adjustment value
+        WRAP_TIME = 1e9 # time readings wrap every 1e9 ns
+        num_wrapped = 0 # how many times the time readings have wrapped
 
+        # Clean up time readings to account for time valuse wrapping around every second
         for i, t in enumerate(values[-1]):
             t += adj
 
@@ -27,9 +28,11 @@ def plot_errors(filename):
                 adj = num_wrapped * WRAP_TIME
                 t += WRAP_TIME
 
+            # Add good values converted to seconds to values list
             values[-1][i] = (t - t_start) / WRAP_TIME
             t_prev = t
 
+        # Constructing the main plot
         plt.plot(values[-1], values[0], label=headers[0])
         plt.plot(values[-1], values[1], label=headers[1])
         plt.plot(values[-1], values[2], label=headers[2])
