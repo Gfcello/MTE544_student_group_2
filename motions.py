@@ -21,7 +21,7 @@ from rclpy.time import Time
 from rclpy.qos import ReliabilityPolicy
 
 CIRCLE=0; SPIRAL=1; ACC_LINE=2
-motion_types=['circle', 'spiral', 'line', 'none']
+motion_types=['circle', 'spiral', 'line']
 
 class motion_executioner(Node):
     
@@ -38,10 +38,11 @@ class motion_executioner(Node):
         self.odom_initialized=False
         self.laser_initialized=False
 
-        self.spiral_turn = 1.
-        self.spiral_inc = 0.005
+        self.spiral_turn = 1.   # Turning radius for the spiral motion
+        self.spiral_inc = 0.005 # How much to increment the spiral radius when turning
 
         # TODO Part 3: Create a publisher to send velocity commands by setting the proper parameters in (...)
+        # Publish twist commands to the correct topic
         self.vel_publisher=self.create_publisher(Twist, '/cmd_vel', 10)
 
         # loggers
@@ -127,7 +128,7 @@ class motion_executioner(Node):
     def make_circular_twist(self):
         
         msg=Twist()
-        # fill up the twist msg for circular motion
+        # Move at a constant speed with a constant angular velocity
         msg.linear.x = 1.
         msg.linear.y = 0.
         msg.linear.z = 0.
@@ -137,6 +138,7 @@ class motion_executioner(Node):
         return msg
 
     def make_spiral_twist(self):
+        # Same principle as circle, but slowly increase the angular velocity to drive in an inwards spiral
         msg=Twist()
         msg.linear.x = 0.5
         msg.linear.y = 0.
@@ -146,10 +148,10 @@ class motion_executioner(Node):
         msg.angular.z = self.spiral_turn
 
         self.spiral_turn += self.spiral_inc
-        # fill up the twist msg for spiral motion
         return msg
     
     def make_acc_line_twist(self):
+        # Move at a constant linear velocity in one direction
         msg=Twist()
         msg.linear.x = 0.5
         msg.linear.y = 0.
@@ -157,7 +159,6 @@ class motion_executioner(Node):
         msg.angular.x = 0.
         msg.angular.y = 0.
         msg.angular.z = 0.
-        # fill up the twist msg for line motion
         return msg
 
 import argparse
