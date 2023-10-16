@@ -89,7 +89,9 @@ def euler_from_quaternion(quat):
     Convert quaternion (w in last place) to euler roll, pitch, yaw.
     quat = [x, y, z, w]
     """
-
+    siny_cosp = 2 * (quat.w * quat.z + quat.x * quat.y)
+    cosy_cosp = 1 - 2 * (quat.y ** 2 + quat.z ** 2)
+    yaw = atan2(siny_cosp, cosy_cosp)
     # just unpack yaw
     return yaw
 
