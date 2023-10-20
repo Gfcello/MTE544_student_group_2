@@ -48,7 +48,6 @@ class decision_maker(Node):
         else:
             print("Error! you don't have this planner", file=sys.stderr)
 
-
         # Instantiate the localization, use rawSensor for now  
         self.localizer=localization(rawSensor)
 
@@ -64,8 +63,6 @@ class decision_maker(Node):
         # TODO Part 3: Run the localization node
         # Remember that this file is already running the decision_maker node.
 
-        self.localizer = localization() # Default localization mode is correct
-
         if self.localizer.getPose()  is  None:
             print("waiting for odom msgs ....")
             return
@@ -74,11 +71,13 @@ class decision_maker(Node):
         
         # TODO Part 3: Check if you reached the goal
         if type(self.goal) == list:
-            reached_goal=(self.localizer.getPose() == self.goal)  # TODO check if we need a tolerance
+            # Trajectory
+            error = calculate_linear_error(self.localizer.getPose(), self.goal[-1])
         else:
-            # Can't reach goal if there is no goal
-            reached_goal=True
-        
+            # Goal Point
+            error = calculate_linear_error(self.localizer.getPose(), self.goal)
+
+        reached_goal = (error < 0.1)
 
         if reached_goal:
             print("reached goal")
@@ -93,15 +92,14 @@ class decision_maker(Node):
         velocity, yaw_rate = self.controller.vel_request(self.localizer.getPose(), self.goal, True)
 
         #TODO Part 4: Publish the velocity to move the robot
-        msg = Twist()
-        msg.linear.x = velocity
-        msg.linear.y = 0.
-        msg.linear.z = 0.
-        msg.angular.x = 0.
-        msg.angular.y = 0.
-        msg.angular.z = yaw_rate
+        vel_msg.linear.x = velocity
+        vel_msg.linear.y = 0.
+        vel_msg.linear.z = 0.
+        vel_msg.angular.x = 0.
+        vel_msg.angular.y = 0.
+        vel_msg.angular.z = yaw_rate
         
-        self.publisher.publish(msg)
+        self.publisher.publish(vel_msg)
 
 import argparse
 
@@ -110,7 +108,7 @@ def main(args=None):
     
     init()
 
-    # TODO Part 3: You migh need to change the QoS profile based on whether you're using the real robot or in simulation.
+    # TODO Part 3: You mighty need to change the QoS profile based on whether you're using the real robot or in simulation.
     # Remember to define your QoS profile based on the information available in "ros2 topic info /odom --verbose" as explained in Tutorial 3
     
     qos=QoSProfile(reliability=2, durability=2, history=1, depth=10)

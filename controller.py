@@ -8,9 +8,11 @@ M_PI=3.1415926535
 
 P=0; PD=1; PI=2; PID=3
 
+MAX_LIN_VEL = 0.31
+MAX_ANG_VEL = 1.9
+
 class controller:
-    
-    
+
     # Default gains of the controller for linear and angular motions
     def __init__(self, klp=0.2, klv=0.2, kli=0.2, kap=0.2, kav=0.2, kai=0.2):
         
@@ -30,8 +32,11 @@ class controller:
         
         # TODO Part 4: Add saturation limits for the robot linear and angular velocity
 
-        linear_vel = 1.0 if linear_vel > 1.0 else linear_vel
-        angular_vel= 1.0 if angular_vel > 1.0 else angular_vel
+        linear_vel = MAX_LIN_VEL if linear_vel > MAX_LIN_VEL else linear_vel
+        angular_vel = MAX_ANG_VEL if angular_vel > MAX_ANG_VEL else angular_vel
+
+        linear_vel = -MAX_LIN_VEL if linear_vel < -MAX_LIN_VEL else linear_vel
+        angular_vel = -MAX_ANG_VEL if angular_vel < -MAX_ANG_VEL else angular_vel
         
         return linear_vel, angular_vel
     
@@ -39,7 +44,7 @@ class controller:
 class trajectoryController(controller):
 
     def __init__(self, klp=0.2, klv=0.2, kli=0.2, kap=0.2, kav=0.2, kai=0.2, lookAhead=1.0):
-        
+
         super().__init__(klp, klv, kli, kap, kav, kai)
         self.lookAhead=lookAhead
     
@@ -58,8 +63,11 @@ class trajectoryController(controller):
 
         # TODO Part 4: Add saturation limits for the robot linear and angular velocity
 
-        linear_vel = 1.0 if linear_vel > 1.0 else linear_vel
-        angular_vel= 1.0 if angular_vel > 1.0 else angular_vel
+        linear_vel = MAX_LIN_VEL if linear_vel > MAX_LIN_VEL else linear_vel
+        angular_vel = MAX_ANG_VEL if angular_vel > MAX_ANG_VEL else angular_vel
+
+        linear_vel = -MAX_LIN_VEL if linear_vel < -MAX_LIN_VEL else linear_vel
+        angular_vel = -MAX_ANG_VEL if angular_vel < -MAX_ANG_VEL else angular_vel
         
         return linear_vel, angular_vel
 

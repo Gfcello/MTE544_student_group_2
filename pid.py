@@ -22,6 +22,7 @@ class PID_ctrl:
         self.ki=ki    # integral gain
         
         self.logger=Logger(filename_)
+        self.logger.log_values(['p_error','i_error','d_error','stamp'])
         # Remeber that you are writing to the file named filename_ or errors.csv the following:
             # error, error_dot, error_int and time stamp
 
@@ -52,6 +53,7 @@ class PID_ctrl:
         # Compute the error derivative
         dt_avg=0
         error_dot=0
+        inconsistent_timesteps = False
         
         for i in range(1, len(self.history)):
             
@@ -60,42 +62,41 @@ class PID_ctrl:
             
             dt=(t1.nanoseconds - t0.nanoseconds) / 1e9
             
+            if dt_avg != 0 and abs((dt - dt_avg) / (i-1)) > 0.2:
+                dt = 0.1
+
             dt_avg+=dt
 
             # use constant dt if the messages arrived inconsistent
-            # for example dt=0.1 overwriting the calculation          
+            # for example dt=0.1 overwriting the calculation
             
             # TODO Part 5: calculate the error dot 
-            # error_dot+= ... 
-            
-        error_dot/=len(self.history)
+            error_dot += (self.history[i][0] - self.history[i-1][0]) / dt
+
+        error_dot/=len(self.history) # Divide to get avg d of error
         dt_avg/=len(self.history)
         
         # Compute the error integral
         sum_=0
         for hist in self.history:
             # TODO Part 5: Gather the integration
-            # sum_+=...
-            pass
+            sum_+= self.history[i][0]
         
-        error_int=sum_*dt_avg
+        error_int=sum_*dt_avg # Adds time component here
         
         # TODO Part 4: Log your errors
-        self.logger.log_values( ... )
+        self.logger.log_values([latest_error, error_int, error_dot, stamp]) # P, I, D, stamp
         
         # TODO Part 4: Implement the control law of P-controller
         if self.type == P:
-            return ... # complete
+            return self.kp * latest_error
         
         # TODO Part 5: Implement the control law corresponding to each type of controller
         elif self.type == PD:
-            pass
-            # return ... # complete
+            return self.kp * latest_error + self.kv * error_dot
         
         elif self.type == PI:
-            pass
-            # return ... # complete
+            return self.kp * latest_error + self.ki * error_int
         
         elif self.type == PID:
-            pass
-            # return ... # complete
+            return self.kp * latest_error + self.ki * error_int + self.kv * error_dot
