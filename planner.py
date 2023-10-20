@@ -19,7 +19,7 @@ class planner:
             return self.point_planner(goalPoint)
         
         elif self.type==TRAJECTORY_PLANNER:
-            return self.trajectory_planner(traj_type)
+            return self.trajectory_planner(SIGMA_PATH)
 
 
     def point_planner(self, goalPoint):
@@ -30,13 +30,14 @@ class planner:
 
     # TODO Part 6: Implement the trajectories here
     def trajectory_planner(self, traj_type):
-        timeseries = np.linspace(0, 10, 1000) # 6000 points at 100Hz
         trajectory = []
         if traj_type == QUADRATIC_PATH:
+            timeseries = np.linspace(0, 2, 10) # 10 points
             for time in timeseries:
-                trajectory.append([time, time ** 2, np.arctan2((time ** 2 - trajectory[-1][1]) / (time - trajectory[-1][0]))])
+                trajectory.append([time, time ** 2])
         elif traj_type == SIGMA_PATH:
+            timeseries = np.linspace(0, 4, 20) # 20 points
             for time in timeseries:
-                trajectory.append([time, 1/(1+np.exp(-time)), np.arctan2((1/(1+np.exp(-time)) - trajectory[-1][1]) / (time - trajectory[-1][0]))])
+                trajectory.append([time, 1/(1+np.exp(-time))])
         return trajectory
 
