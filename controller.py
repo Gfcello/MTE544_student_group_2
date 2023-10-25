@@ -17,8 +17,8 @@ class controller:
     def __init__(self, klp=0.2, klv=0.2, kli=0.2, kap=0.2, kav=0.2, kai=0.2):
         
         # TODO Part 5 and 6: Modify the below lines to test your PD, PI, and PID controller
-        self.PID_linear=PID_ctrl(PID, klp, klv, kli, filename_="sim_linear_traj_quad_PID_tuned.csv")
-        self.PID_angular=PID_ctrl(PID, kap, kav, kai, filename_="sim_angular_traj_quad_PID_tuned.csv")
+        self.PID_linear=PID_ctrl(PID, klp, klv, kli, filename_="csv_heaven/sim_linear_PID_tuned.csv")
+        self.PID_angular=PID_ctrl(PID, kap, kav, kai, filename_="csv_heaven/sim_angular_PID_tuned.csv")
 
     
     def vel_request(self, pose, goal, status):

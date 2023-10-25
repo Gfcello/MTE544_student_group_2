@@ -16,10 +16,14 @@ def plot_errors(filename):
     fig, axes = plt.subplots(1,2, figsize=(14,6))
 
     axes[0].plot([lin[0] for lin in values], [lin[1] for lin in values])
-    axes[0].set_title("state space")
+    axes[0].set_title("x vs y" if "pose" in filename else "e vs e_dot")
+    axes[0].set_xlabel("x" if "pose" in filename else "e")
+    axes[0].set_ylabel("y" if "pose" in filename else "e_dot")
     axes[0].grid()
 
-    axes[1].set_title("each individual state")
+    axes[1].set_title("x, y, theta vs time" if "pose" in filename else "e, e_dot, e_int vs time")
+    axes[1].set_xlabel("time [sec]")
+    axes[1].set_ylabel("x/y/theta" if "pose" in filename else "e/e_dot/e_int")
     for i in range(0, len(headers) - 1):
         axes[1].plot(time_list, [lin[i] for lin in values], label= headers[i]+ " linear")
 

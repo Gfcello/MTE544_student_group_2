@@ -21,7 +21,7 @@ class PID_ctrl:
         self.kv=kv    # derivative gain
         self.ki=ki    # integral gain
         
-        self.logger=Logger(filename_, headers=['p_error','i_error','d_error','stamp'])
+        self.logger=Logger(filename_, headers=['p_error','d_error','i_error','stamp'])
         # Remeber that you are writing to the file named filename_ or errors.csv the following:
             # error, error_dot, error_int and time stamp
 
@@ -84,7 +84,7 @@ class PID_ctrl:
         error_int=sum_*dt_avg # Adds time component here
         
         # TODO Part 4: Log your errors
-        self.logger.log_values([latest_error, error_int, error_dot, stamp]) # P, I, D, stamp
+        self.logger.log_values([latest_error, error_dot, error_int, Time.from_msg(stamp).nanoseconds]) # P, D, I, stamp
         
         # TODO Part 4: Implement the control law of P-controller
         if self.type == P:
