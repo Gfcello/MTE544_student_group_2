@@ -21,8 +21,7 @@ class PID_ctrl:
         self.kv=kv    # derivative gain
         self.ki=ki    # integral gain
         
-        self.logger=Logger(filename_)
-        self.logger.log_values(['p_error','i_error','d_error','stamp'])
+        self.logger=Logger(filename_, headers=['p_error','i_error','d_error','stamp'])
         # Remeber that you are writing to the file named filename_ or errors.csv the following:
             # error, error_dot, error_int and time stamp
 
@@ -77,10 +76,10 @@ class PID_ctrl:
         dt_avg/=len(self.history)
         
         # Compute the error integral
-        sum_=0
+        sum_= 0
         for hist in self.history:
             # TODO Part 5: Gather the integration
-            sum_+= self.history[i][0]
+            sum_+= hist[0]
         
         error_int=sum_*dt_avg # Adds time component here
         

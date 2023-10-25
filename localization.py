@@ -22,7 +22,7 @@ class localization(Node):
 
         odom_qos=QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT, depth=10)
         
-        self.loc_logger=Logger("robot_pose.csv", ["x", "y", "theta", "stamp"])
+        self.loc_logger=Logger("sim_robot_pose_traj_quad_PID_tuned.csv", ["x", "y", "theta", "stamp"])
         self.pose=None
         
         if localizationType == rawSensor:

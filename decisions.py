@@ -37,12 +37,12 @@ class decision_maker(Node):
         # TODO Part 5: Tune your parameters here
     
         if motion_type == POINT_PLANNER:
-            self.controller=controller(klp=0.2, klv=0.5, kap=0.8, kav=0.6)
+            self.controller=controller(klp=1, klv=0.7, kli=0.4, kap=1, kav=0.8, kai=0.4)
             self.planner=planner(POINT_PLANNER)    
     
     
         elif motion_type==TRAJECTORY_PLANNER:
-            self.controller=trajectoryController(klp=0.2, klv=0.5, kap=0.8, kav=0.6)
+            self.controller=trajectoryController(klp=0.2, klv=0.5, kli=0.2, kap=0.8, kav=0.6, kai=0.2)
             self.planner=planner(TRAJECTORY_PLANNER)
 
         else:
@@ -79,7 +79,7 @@ class decision_maker(Node):
             error = calculate_linear_error(self.localizer.getPose(), self.goal)
         print(f'Error:{error}')
 
-        reached_goal = (error < 0.3)
+        reached_goal = (error < 0.05)
 
         if reached_goal:
             print("reached goal")
@@ -118,7 +118,7 @@ def main(args=None):
 
     # TODO Part 3: instantiate the decision_maker with the proper parameters for moving the robot
     if args.motion.lower() == "point":
-        goal = [2,-1,0]
+        goal = [0,0,0]
         DM=decision_maker(Twist, '/cmd_vel', qos, goal, motion_type=POINT_PLANNER)
     elif args.motion.lower() == "trajectory":
         goal = []

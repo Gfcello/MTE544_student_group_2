@@ -19,7 +19,7 @@ class planner:
             return self.point_planner(goalPoint)
         
         elif self.type==TRAJECTORY_PLANNER:
-            return self.trajectory_planner(SIGMA_PATH)
+            return self.trajectory_planner(QUADRATIC_PATH)
 
 
     def point_planner(self, goalPoint):
