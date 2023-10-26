@@ -19,6 +19,7 @@ class planner:
             return self.point_planner(goalPoint)
         
         elif self.type==TRAJECTORY_PLANNER:
+            # Change passed planner type for desired trajectory here
             return self.trajectory_planner(QUADRATIC_PATH)
 
 

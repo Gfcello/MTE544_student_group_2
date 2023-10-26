@@ -30,16 +30,15 @@ class decision_maker(Node):
 
         #TODO Part 4: Create a publisher for the topic responsible for robot's motion
         self.publisher=self.create_publisher(Twist, '/cmd_vel', 10)
-        self.motion_type = motion_type
+        self.motion_type = motion_type # Type of motion (POINT or TRAJECTORY)
         publishing_period=1/rate
         
         # Instantiate the controller
         # TODO Part 5: Tune your parameters here
-    
+        # Use this to differentiate between POINT and TRAJECTORY planners
         if motion_type == POINT_PLANNER:
             self.controller=controller(klp=3, klv=0.8, kli=0.4, kap=1.5, kav=0.4, kai=0.8)
-            self.planner=planner(POINT_PLANNER)    
-    
+            self.planner=planner(POINT_PLANNER)        
     
         elif motion_type==TRAJECTORY_PLANNER:
             self.controller=trajectoryController(klp=3, klv=0.8, kli=0.4, kap=1.5, kav=0.4, kai=0.8)
@@ -62,7 +61,7 @@ class decision_maker(Node):
         
         # TODO Part 3: Run the localization node
         # Remember that this file is already running the decision_maker node.
-        spin_once(self.localizer)
+        spin_once(self.localizer) # Spin to get new odom values
 
         if self.localizer.getPose() is None:
             print("waiting for odom msgs ....")
@@ -71,14 +70,15 @@ class decision_maker(Node):
         vel_msg=Twist()
         
         # TODO Part 3: Check if you reached the goal
+        # Assume only x/y position matters for reaching the goal (no angular requirement)
         if self.motion_type == TRAJECTORY_PLANNER:
             # Trajectory
             error = calculate_linear_error(self.localizer.getPose(), self.goal[-1])
         else:
             # Goal Point
             error = calculate_linear_error(self.localizer.getPose(), self.goal)
-        print(f'Error:{error}')
 
+        # Check if error is within threshold for reaching goal 
         reached_goal = (error < 0.01)
 
         if reached_goal:
@@ -90,7 +90,6 @@ class decision_maker(Node):
             
             #TODO Part 3: exit the spin
             shutdown()
-            exit()
         
         velocity, yaw_rate = self.controller.vel_request(self.localizer.getPose(), self.goal, True)
 
@@ -122,10 +121,10 @@ def main(args=None):
         goal = [2,3,0]
         DM=decision_maker(Twist, '/cmd_vel', qos, goal, motion_type=POINT_PLANNER)
     elif args.motion.lower() == "trajectory":
-        goal = []
+        goal = [] # Goal does not matter for trajectory planner
         DM=decision_maker(Twist, '/cmd_vel', qos, goal, motion_type=TRAJECTORY_PLANNER)
     else:
-        print("invalid motion type", file=sys.stderr)        
+        print("invalid motion type", file=sys.stderr)
     
     try:
         spin(DM)

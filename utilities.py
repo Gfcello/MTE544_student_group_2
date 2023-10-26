@@ -89,6 +89,7 @@ def euler_from_quaternion(quat):
     Convert quaternion (w in last place) to euler roll, pitch, yaw.
     quat = [x, y, z, w]
     """
+    # Taken from Lab 1 Code
     siny_cosp = 2 * (quat.w * quat.z + quat.x * quat.y)
     cosy_cosp = 1 - 2 * (quat.y ** 2 + quat.z ** 2)
     yaw = atan2(siny_cosp, cosy_cosp)
@@ -119,13 +120,12 @@ def calculate_angular_error(current_pose, goal_pose):
 
     error_angular = atan2(dif_y, dif_x) - current_pose[2]
 
+    # Remember to handle the cases where the angular error might exceed the range [-π, π]
     # Ensure that the angular error is in the range
     while error_angular > M_PI:
         error_angular -= 2 * M_PI
     
     while error_angular < -M_PI:
         error_angular += 2 * M_PI
-
-    # Remember to handle the cases where the angular error might exceed the range [-π, π]
     
     return error_angular

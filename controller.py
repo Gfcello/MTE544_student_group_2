@@ -8,8 +8,9 @@ M_PI=3.1415926535
 
 P=0; PD=1; PI=2; PID=3
 
-MAX_LIN_VEL = 0.31
-MAX_ANG_VEL = 1.9
+# Taken from turtlebot datasheet
+MAX_LIN_VEL = 0.31 # Maximum linear velocity of turtle bot
+MAX_ANG_VEL = 1.9 # Maximum angular velocity of turtle bot
 
 class controller:
 
@@ -17,15 +18,14 @@ class controller:
     def __init__(self, klp=0.2, klv=0.2, kli=0.2, kap=0.2, kav=0.2, kai=0.2):
         
         # TODO Part 5 and 6: Modify the below lines to test your PD, PI, and PID controller
-        self.PID_linear=PID_ctrl(PID, klp, klv, kli, filename_="csv_heaven/sim_linear_PID_tuned.csv")
-        self.PID_angular=PID_ctrl(PID, kap, kav, kai, filename_="csv_heaven/sim_angular_PID_tuned.csv")
+        self.PID_linear=PID_ctrl(PID, klp, klv, kli, filename_="linear_PID_tuned.csv")
+        self.PID_angular=PID_ctrl(PID, kap, kav, kai, filename_="angular_PID_tuned.csv")
 
     
     def vel_request(self, pose, goal, status):
         
         e_lin=calculate_linear_error(pose, goal)
         e_ang=calculate_angular_error(pose, goal)
-
 
         linear_vel=self.PID_linear.update([e_lin, pose[3]], status)
         angular_vel=self.PID_angular.update([e_ang, pose[3]], status)

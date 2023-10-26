@@ -2,7 +2,7 @@ from rclpy.time import Time
 from utilities import Logger
 
 # Controller type
-P=0 # poportional
+P=0 # proportional
 PD=1 # proportional and derivative
 PI=2 # proportional and integral
 PID=3 # proportional, integral, derivative
@@ -22,8 +22,8 @@ class PID_ctrl:
         self.ki=ki    # integral gain
         
         self.logger=Logger(filename_, headers=['p_error','d_error','i_error','stamp'])
-        # Remeber that you are writing to the file named filename_ or errors.csv the following:
-            # error, error_dot, error_int and time stamp
+        # Remember that you are writing to the file named filename_ or errors.csv the following:
+            # error, error_dot, eSrror_int and time stamp
 
     
     def update(self, stamped_error, status):
@@ -52,23 +52,23 @@ class PID_ctrl:
         # Compute the error derivative
         dt_avg=0
         error_dot=0
-        inconsistent_timesteps = False
-        
+
         for i in range(1, len(self.history)):
             
             t0=Time.from_msg(self.history[i-1][1])
             t1=Time.from_msg(self.history[i][1])
             
+            # Divide by 1e9 to convert from nsec to sec
             dt=(t1.nanoseconds - t0.nanoseconds) / 1e9
             
+            # Check if not the very first value for dt_avg or if the calculated dt is larger than threshold (0.2)
             if dt_avg != 0 and abs((dt - dt_avg) / (i-1)) > 0.2:
+                # use constant dt if the messages arrived inconsistent
+                # for example dt=0.1 overwriting the calculation
                 dt = 0.1
 
             dt_avg+=dt
 
-            # use constant dt if the messages arrived inconsistent
-            # for example dt=0.1 overwriting the calculation
-            
             # TODO Part 5: calculate the error dot 
             error_dot += (self.history[i][0] - self.history[i-1][0]) / dt
 
@@ -80,7 +80,7 @@ class PID_ctrl:
         for hist in self.history:
             # TODO Part 5: Gather the integration
             sum_+= hist[0]
-        
+
         error_int=sum_*dt_avg # Adds time component here
         
         # TODO Part 4: Log your errors
