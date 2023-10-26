@@ -22,10 +22,10 @@ def plot_errors(filename):
     axes[0].grid()
 
     axes[1].set_title("x, y, theta vs time" if "pose" in filename else "e, e_dot, e_int vs time")
-    axes[1].set_xlabel("time [sec]")
+    axes[1].set_xlabel("time [nsec]")
     axes[1].set_ylabel("x/y/theta" if "pose" in filename else "e/e_dot/e_int")
     for i in range(0, len(headers) - 1):
-        axes[1].plot(time_list, [lin[i] for lin in values], label= headers[i]+ " linear")
+        axes[1].plot(time_list, [lin[i] for lin in values], label= headers[i]+ (" linear" if "linear" in filename else " angular"))
 
     axes[1].legend()
     axes[1].grid()
