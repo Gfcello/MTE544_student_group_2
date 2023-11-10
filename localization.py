@@ -29,7 +29,7 @@ class localization(Node):
 
         super().__init__("localizer")
 
-        elf.loc_logger=Logger( loggerName , loggerHeaders)
+        self.loc_logger=Logger( loggerName , loggerHeaders)
         self.pose=None
         
         if type==rawSensors:
@@ -47,19 +47,21 @@ class localization(Node):
         
         # TODO Part 3: Set up the quantities for the EKF (hint: you will need the functions for the states and measurements)
         
-        x= ...
+        # TODO: Something here funky looking at hint above
+        # Start it at the 0, 0 state point in the x direction with no motion or acceleration.
+        x= np.array([0, 0, 0, 0, 0, 0])
         
-        Q= ...
+        Q= np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0]) #TODO: Tune here!
 
-        R= ...
+        R= np.array([1.0, 1.0, 1.0, 1.0]) #TODO: Tune here!
         
-        P= ... # initial covariance
+        P= np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ])  # initial covariance is 0 as we have a known starting state
         
         self.kf=kalman_filter(P,Q,R, x, dt)
         
         # TODO Part 3: Use the odometry and IMU data for the EKF
-        self.odom_sub=message_filters.Subscriber(...)
-        self.imu_sub=message_filters.Subscriber(...)
+        self.odom_sub=message_filters.Subscriber(self, odom, "/odom")
+        self.imu_sub=message_filters.Subscriber(self, Imu, "/imu")
         
         time_syncher=message_filters.ApproximateTimeSynchronizer([self.odom_sub, self.imu_sub], queue_size=10, slop=0.1)
         time_syncher.registerCallback(self.fusion_callback)
