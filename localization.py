@@ -51,11 +51,11 @@ class localization(Node):
         # Start it at the 0, 0 state point in the x direction with no motion or acceleration.
         x= np.array([0, 0, 0, 0, 0, 0])
         
-        Q= np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0]) #TODO: Tune here!
+        Q= 0.5*np.identity(6) #TODO: Tune here!
 
-        R= np.array([1.0, 1.0, 1.0, 1.0]) #TODO: Tune here!
+        R= 0.5*np.identity(4) #TODO: Tune here!
         
-        P= np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ])  # initial covariance is 0 as we have a known starting state
+        P= np.zeros(6, 6)  # initial covariance is 0 as we have a known starting state
         
         self.kf=kalman_filter(P,Q,R, x, dt)
         
@@ -73,19 +73,24 @@ class localization(Node):
         # your measurements are the linear velocity and angular velocity from odom msg
         # and linear acceleration in x and y from the imu msg
         # the kalman filter should do a proper integration to provide x,y and filter ax,ay
-        z=...
+        # v, w, ax, ay
+        z=np.array([odom_msg.twist.twist.linear.x, odom_msg.twist.twist.angular.z, imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y])
         
         # Implement the two steps for estimation
-        ...
+        self.kf.predict()
+        self.kf.update(z)
         
         # Get the estimate
+        # x, y, th, w, v, vdot
         xhat=self.kf.get_states()
 
         # Update the pose estimate to be returned by getPose
-        self.pose=np.array(...)
+        self.pose=np.array([xhat[0], xhat[1], xhat[2], odom_msg.header.stamp]) # Use odom to get the stamp
 
         # TODO Part 4: log your data
-        self.loc_logger.log_values(...)
+        # ["imu_ax", "imu_ay", "kf_ax", "kf_ay","kf_vx","kf_w","x", "y","stamp"]
+        # using ay = v*w, but feels weird to multiply in logging
+        self.loc_logger.log_values([imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y, xhat[5], xhat[3]*xhat[4], xhat[4], xhat[3], xhat[0], xhat[1], odom_msg.header.stamp])
       
     def odom_callback(self, pose_msg):
         
