@@ -55,7 +55,7 @@ class localization(Node):
 
         R= 0.5*np.identity(4) #TODO: Tune here!
         
-        P= np.zeros(6, 6)  # initial covariance is 0 as we have a known starting state
+        P= np.zeros((6,6))  # initial covariance is 0 as we have a known starting state
         
         self.kf=kalman_filter(P,Q,R, x, dt)
         
@@ -90,7 +90,7 @@ class localization(Node):
         # TODO Part 4: log your data
         # ["imu_ax", "imu_ay", "kf_ax", "kf_ay","kf_vx","kf_w","x", "y","stamp"]
         # using ay = v*w, but feels weird to multiply in logging
-        self.loc_logger.log_values([imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y, xhat[5], xhat[3]*xhat[4], xhat[4], xhat[3], xhat[0], xhat[1], odom_msg.header.stamp])
+        self.loc_logger.log_values([imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y, xhat[5], xhat[3]*xhat[4], xhat[4], xhat[3], xhat[0], xhat[1], Time.from_msg(odom_msg.header.stamp).nanoseconds])
       
     def odom_callback(self, pose_msg):
         
