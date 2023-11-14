@@ -41,6 +41,9 @@ class kalman_filter:
     # TODO Part 3: Implement here the measurement model
     def measurement_model(self):
         x, y, th, w, v, vdot = self.x
+
+        th = 0
+        
         return np.array([
             v,# v
             w,# w
