@@ -51,17 +51,17 @@ class localization(Node):
         # Start it at the 0, 0 state point in the x direction with no motion or acceleration.
         x= np.array([0, 0, 0, 0, 0, 0])
         
-        Q= 0.5*np.identity(6) #TODO: Tune here!
+        Q= 0.2*np.identity(6) #TODO: Tune here!
 
-        R= 0.5*np.identity(4) #TODO: Tune here!
+        R= 0.8*np.identity(4) #TODO: Tune here!
         
         P= np.zeros((6,6))  # initial covariance is 0 as we have a known starting state
         
         self.kf=kalman_filter(P,Q,R, x, dt)
         
         # TODO Part 3: Use the odometry and IMU data for the EKF
-        self.odom_sub=message_filters.Subscriber(self, odom, "/odom")
-        self.imu_sub=message_filters.Subscriber(self, Imu, "/imu")
+        self.odom_sub=message_filters.Subscriber(self, odom, "/odom",qos_profile=odom_qos)
+        self.imu_sub=message_filters.Subscriber(self, Imu, "/imu",qos_profile=odom_qos)
         
         time_syncher=message_filters.ApproximateTimeSynchronizer([self.odom_sub, self.imu_sub], queue_size=10, slop=0.1)
         time_syncher.registerCallback(self.fusion_callback)
