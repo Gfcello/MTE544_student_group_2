@@ -43,26 +43,23 @@ class decision_maker(Node):
         publishing_period=1/rate
 
         # TODO PART 5 choose your threshold
-        self.reachThreshold=...
+        self.reachThreshold=0.01  # Same as Lab 3
 
         # TODO PART 5 your localization type
-        self.localizer=localization(...)
-
-
+        self.localizer=localization(kalmanFilter)
         
         if motion_type==POINT_PLANNER:
-            self.controller=controller(klp=0.2, klv=0.5, kap=0.8, kav=0.6)      
+            self.controller=controller(klp=0.9, klv=0.8, kli=0.4, kap=1.2, kav=0.3, kai=0.8) # Taken from pervious Lab 
             self.planner=planner(POINT_PLANNER)
 
         
         elif motion_type==TRAJECTORY_PLANNER:
             # TODO PART 5 Bonus Put the gains that you conclude from lab 2
-            self.controller=trajectoryController(...)      
+            self.controller=trajectoryController(klp=3.0, klv=0.8, kli=0.4, kap=1.5, kav=0.4, kai=0.8) # Taken from pervious Lab     
             self.planner=planner(TRAJECTORY_PLANNER)
-        
+
         else:
             print("Error! you don't have this type of planner", file=sys.stderr)
-
 
         self.goal = None
 

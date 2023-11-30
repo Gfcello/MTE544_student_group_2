@@ -38,7 +38,7 @@ class localization(Node):
         self.pose=None
         
         if type==rawSensors:
-            self.initRawSensors();
+            self.initRawSensors()
         elif type==kalmanFilter:
             self.initKalmanfilter()
             self.kalmanInitialized = False
@@ -73,19 +73,17 @@ class localization(Node):
             
             # TODO PART 5 Bonus put the Q and R matrices
             # that you conclude from lab Three
-            Q=...
-            R=...
-            P=...
+            Q= 0.2*np.identity(6) # Taken from previous lab
+            R= 0.8*np.identity(4) # Taken from previous lab
+            P= np.zeros((6,6))  # initial covariance is 0 as we have a known starting state
                         
             self.kf=kalman_filter(P,Q,R, x)
-            
+
             self.kalmanInitialized = True
 
-        
         dt = time.time() - self.timelast
 
         self.timelast=time.time()
-
 
         z=np.array([odom_msg.twist.twist.linear.x,
                     odom_msg.twist.twist.angular.z,
@@ -94,7 +92,7 @@ class localization(Node):
         
         self.kf.predict(dt)
         self.kf.update(z)
-        
+
         xhat=self.kf.get_states()
         
         self.pose=np.array([xhat[0],
