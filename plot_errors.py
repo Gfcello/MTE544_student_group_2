@@ -17,20 +17,38 @@ def plot_errors(filename):
 
     
     
-    fig, axes = plt.subplots(2,1, figsize=(14,6))
+    fig = plt.subplot(2,1, 1)
 
 
-    axes[0].plot([lin[len(headers) - 3] for lin in values], [lin[len(headers) - 2] for lin in values])
-    axes[0].set_title("state space")
-    axes[0].grid()
+    plt.plot([lin[len(headers) - 3] for lin in values], [lin[len(headers) - 2] for lin in values])
+    fig.set_title("X vs Y Trajectory")
+    fig.set_xlabel("X [m]")
+    fig.set_ylabel("Y [m]")
+    fig.grid()
 
+    figx = plt.subplot(2,2,3)
     
-    axes[1].set_title("each individual state")
+    figx.set_title("each individual x state")
     for i in range(0, len(headers) - 1):
-        axes[1].plot(time_list, [lin[i] for lin in values], label= headers[i])
+        if (i % 2 == 0):
+            plt.plot(time_list, [lin[i] for lin in values], label= headers[i])
 
-    axes[1].legend()
-    axes[1].grid()
+    figx.legend()
+    figx.set_xlabel("Time [nS]")
+    figx.set_ylabel("Value")
+    figx.grid()
+
+    figy = plt.subplot(2,2,4)
+    
+    figy.set_title("each individual y state")
+    for i in range(0, len(headers) - 1):
+        if (i % 2 != 0):
+            plt.plot(time_list, [lin[i] for lin in values], label= headers[i])
+
+    figy.legend()
+    figy.set_xlabel("Time [nS]")
+    figy.set_ylabel("Value")
+    figy.grid()
 
     plt.show()
     
