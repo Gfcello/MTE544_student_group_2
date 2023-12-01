@@ -62,15 +62,22 @@ def search(maze, start, end):
     """
 
     # TODO PART 4 Create start and end node with initized values for g, h and f
-    start_node = Node(None, start.position)
-    start_node.g = start.g
-    start_node.h = start.h
-    start_node.f = start_node.h + start_node.g
+    start_node = Node(parent=None, position=start)
+    start_node.g = 0
+
+    if HEURISTIC_MANHATTAN:
+        ## Heuristic cost for Manhattan:
+        start_node.h = abs(end[0]-start[0]) + abs(end[1]-start[1])
+    else:
+        ## Heuristic costs calculated here, this is using eucledian distance
+        start_node.h = np.sqrt((end[0]-start[0])**2 + (end[1]-start[1])**2)
     
-    end_node = Node(None, end.position)
-    end_node.g = end.g
-    end_node.h = end.h
-    end_node.f = end_node.h + end_node.g
+    start_node.f = start_node.g + start_node.h
+    
+    end_node = Node(parent=None, position=end)
+    end_node.g = 0
+    end_node.h = 0
+    end_node.f = end_node.g + end_node.h
 
     # Initialize both yet_to_visit and visited list
     # in this list we will put all node that are yet_to_visit for exploration. 
@@ -89,7 +96,7 @@ def search(maze, start, end):
 
     
     # TODO PART 4 what squares do we search . search movement is left-right-top-bottom 
-    #(4 movements) from every positon
+    #(4 movements) from every positon (May want to flip sign of y)
     move  =  [[0, -1], # go up
               [-1, 0], # go left
               [0, 1], # go down
@@ -161,7 +168,7 @@ def search(maze, start, end):
             node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
 
             # TODO PART 4 Make sure within range (check if within maze boundary)
-            if (node_position[0] < 0 or node_position[0] >= no_columns or node_position[1] < 0 or node_position[1] >= no_rows):
+            if (node_position[0] < 0 or node_position[0] >= no_rows or node_position[1] < 0 or node_position[1] >= no_columns):
                 continue
 
             # Make sure walkable terrain
