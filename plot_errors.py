@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 from utilities import FileReader
 
-def plot_errors():
+def plot_errors(filename):
     
-    headers, values=FileReader("robot_pose.csv").read_file()
+    headers, values=FileReader(filename).read_file()
 
     
     time_list=[]
