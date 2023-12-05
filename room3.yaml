@@ -1,8 +1,0 @@
-image: room3.pgm
-mode: trinary
-resolution: 0.05
-# -5.44, -5.25, 0
-origin: [-7.439927, -5.750001, 0]
-negate: 0
-occupied_thresh: 0.65
-free_thresh: 0.25
