@@ -43,19 +43,21 @@ class decision_maker(Node):
         publishing_period=1/rate
 
         # TODO PART 5 choose your threshold
-        self.reachThreshold=0.01  # Same as Lab 3
+        self.reachThreshold=0.01  # Same value as Lab 3
 
         # TODO PART 5 your localization type
-        self.localizer=localization(rawSensors)
+
+        # Used kalmanFilter in the lab and rawSensors in sim
+        self.localizer=localization(kalmanFilter)
         
         if motion_type==POINT_PLANNER:
-            self.controller=controller(klp=0.9, klv=0.8, kli=0.4, kap=1.2, kav=0.3, kai=0.8) # Taken from pervious Lab 
+            self.controller=controller(klp=0.9, klv=0.8, kli=0.4, kap=1.2, kav=0.3, kai=0.8) # Taken from Lab 2
             self.planner=planner(POINT_PLANNER)
 
         
         elif motion_type==TRAJECTORY_PLANNER:
             # TODO PART 5 Bonus Put the gains that you conclude from lab 2
-            self.controller=trajectoryController(klp=3.0, klv=0.8, kli=0.4, kap=1.5, kav=0.4, kai=0.8) # Taken from pervious Lab     
+            self.controller=trajectoryController(klp=3.0, klv=0.8, kli=0.4, kap=1.5, kav=0.4, kai=0.8) # Taken from Lab 2  
             self.planner=planner(TRAJECTORY_PLANNER)
 
         else:

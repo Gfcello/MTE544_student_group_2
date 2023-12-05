@@ -31,6 +31,9 @@ class planner:
         # TODO PART 5 Create the cost-map, the laser_sig is 
         # the standard deviation for the gausian for which
         # the mean is located on the occupant grid. 
+
+        # Through trial and error it was found that a value of 0.4 for laser_sig
+        # works well in sim and in real life
         self.m_utilites=mapManipulator(laser_sig=0.4) 
 
         self.costMap=self.m_utilites.make_likelihood_field()
@@ -40,7 +43,7 @@ class planner:
 
 
         # This is to convert the cartesian coordinates into the 
-        # the pixel coordinates of the map image, remmember,
+        # the pixel coordinates of the map image, remember,
         # the cost-map is in pixels. You can by the way, convert the pixels
         # to the cartesian coordinates and work by that index, the a_star finds
         # the path regardless. 
@@ -49,11 +52,12 @@ class planner:
         
         # TODO PART 5 convert the cell pixels into the cartesian coordinates
         
-        # This uses the search on the cost map to generate the path, then runs the cell to position conversion on each cell
+        # This uses the search on the cost map to generate the path (in terms of cells), then runs the cell to position conversion on each cell
+        # The path is therefore a list of nodes with [x,y] positions
         Path = list(map(self.m_utilites.cell_2_position, search(self.costMap, startPose, endPose)))
 
         # TODO PART 5 return the path as list of [x,y]
-        return Path
+        return Path # Simply return the Path
 
 
 

@@ -73,9 +73,9 @@ class localization(Node):
             
             # TODO PART 5 Bonus put the Q and R matrices
             # that you conclude from lab Three
-            Q= 0.2*np.identity(6) # Taken from previous lab
-            R= 0.8*np.identity(4) # Taken from previous lab
-            P= np.zeros((6,6))  # initial covariance is 0 as we have a known starting state
+            Q= 0.2*np.identity(6) # Taken from Lab 3
+            R= 0.8*np.identity(4) # Taken from Lab 3
+            P= np.zeros((6,6))  # initial covariance is 0 as we have a known starting state (from Lab 3)
                         
             self.kf=kalman_filter(P,Q,R, x)
 

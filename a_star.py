@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import sqrt
 
+# Which heuristic distance measure to use for A*
+# True: Manhattan distance
+# False: Euclidean distance
 HEURISTIC_MANHATTAN = True
 
 class Node:
@@ -24,7 +27,7 @@ class Node:
     def __eq__(self, other):
         return self.position == other.position
 
-#This function return the path of the search
+# This function return the path of the search
 def return_path(current_node,maze):
     path = []
     no_rows, no_columns = np.shape(maze)
@@ -62,9 +65,12 @@ def search(maze, start, end):
     """
 
     # TODO PART 4 Create start and end node with initized values for g, h and f
+    # Use Node constructor to create node at start poisition
+    # No parent for the starting node
     start_node = Node(parent=None, position=start)
-    start_node.g = 0
+    start_node.g = 0 # 0 because start from this node
 
+    # Both heuristics are the distance to the end position (hence non-zero)
     if HEURISTIC_MANHATTAN:
         ## Heuristic cost for Manhattan:
         start_node.h = abs(end[0]-start[0]) + abs(end[1]-start[1])
@@ -72,12 +78,13 @@ def search(maze, start, end):
         ## Heuristic costs calculated here, this is using eucledian distance
         start_node.h = np.sqrt((end[0]-start[0])**2 + (end[1]-start[1])**2)
     
-    start_node.f = start_node.g + start_node.h
+    start_node.f = start_node.g + start_node.h # sum of heuristic and actual cost
     
+    # Use node constructor to create node at end position, no parent because dont have the path yet!
     end_node = Node(parent=None, position=end)
-    end_node.g = 0
-    end_node.h = 0
-    end_node.f = end_node.g + end_node.h
+    end_node.g = 0 # Unknown cost to get to the end
+    end_node.h = 0 # The end is the end (hence 0 distance to itself)
+    end_node.f = end_node.g + end_node.h # sum of heuristic and actual cost
 
     # Initialize both yet_to_visit and visited list
     # in this list we will put all node that are yet_to_visit for exploration. 
@@ -94,9 +101,12 @@ def search(maze, start, end):
     outer_iterations = 0
     max_iterations = (len(maze) // 2) ** 10
 
-    
     # TODO PART 4 what squares do we search . search movement is left-right-top-bottom 
-    #(4 movements) from every positon (May want to flip sign of y)
+    #(4 movements) from every positon
+
+    # Assume that moving from left to right is a positive index change
+    # Assume that moving from top to bottom is a positive index change
+    # [0,0] is the current pose, all movement entries represent the change in position (add 1, sub 1 or do nothing to position index in grid)
     move  =  [[0, -1], # go up
               [-1, 0], # go left
               [0, 1], # go down
@@ -125,7 +135,7 @@ def search(maze, start, end):
                 d) else move the child to yet_to_visit list
     """
     # TODO PART 4 find maze has got how many rows and columns 
-    no_rows, no_columns = np.shape(maze)
+    no_rows, no_columns = np.shape(maze) # Shape of the maze array gives number of rows and columns
     
 
     # Loop until you find the end
@@ -165,9 +175,11 @@ def search(maze, start, end):
         for new_position in move: 
 
             # TODO PART 4 Get node position
+            # Add the relative index changes from the move list to the current_node position to get new node_position
             node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
 
             # TODO PART 4 Make sure within range (check if within maze boundary)
+            # The maze array wont have negative indexes, and can't index past the size of the array (no_rows and no_columns)
             if (node_position[0] < 0 or node_position[0] >= no_rows or node_position[1] < 0 or node_position[1] >= no_columns):
                 continue
 
@@ -186,19 +198,26 @@ def search(maze, start, end):
         for child in children:
   
             # TODO PART 4 Child is on the visited list (search entire visited list)
+            # Only check visited_list if there is at least one node that has been visited
             if len(visited_list) > 0:
-                node_visited = False
+                node_visited = False # Whether the current node has been visited or not (best path already found)
+                # Check every node in the visited list
                 for visited_node in visited_list:
+                    # Check to see if the position of the current node matches a node in the visited list
+                    # This means that the node has been visited and does not need to be looked at again
                     if child.position == visited_node.position:
+                        # Set node_visited to true and stop checking the visited list
                         node_visited = True
                         break
 
+                # Skip the node if it has been visited, otherwise continue
                 if node_visited:
                     continue
 
             # TODO PART 4 Create the f, g, and h values
-            child.g = child.parent.g + 1
+            child.g = child.parent.g + 1 # Add one to the parent's g cost because traveled one node further
             
+            # Both heuristics are distance from the current node being visited to the goal/end node.
             if HEURISTIC_MANHATTAN:
                 ## Heuristic cost for Manhattan:
                 child.h = abs(end_node.position[0]-child.position[0]) + abs(end_node.position[1]-child.position[1])
@@ -206,7 +225,7 @@ def search(maze, start, end):
                 ## Heuristic costs calculated here, this is using eucledian distance
                 child.h = np.sqrt((end_node.position[0]-child.position[0])**2 + (end_node.position[1]-child.position[1])**2)
 
-            child.f = child.g + child.h
+            child.f = child.g + child.h # sum of the heuristic and actual cost
 
             # Child is already in the yet_to_visit list and g cost is already lower
             if len([i for i in yet_to_visit_list if child == i and child.g >= i.g]) > 0:
